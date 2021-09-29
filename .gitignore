@@ -29,8 +29,13 @@ libtool
 *Makefile
 stamp-h1
 src/.libs
+cython/.libs
 *.pc
 tools/.libs/*
 tools/irecovery
 .irecovery
 udev/39-libirecovery.rules
+
+# OS / IDE Files
+.DS_Store
+.idea/
