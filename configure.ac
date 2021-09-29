@@ -179,6 +179,41 @@ if test "x$with_udev" = "xyes"; then
 fi
 AM_CONDITIONAL(WITH_UDEV, test "x$with_udev" = "xyes")
 
+# Cython Python Bindings
+AC_ARG_WITH([cython],
+            [AS_HELP_STRING([--without-cython],
+            [build Python bindings using Cython (default is yes)])],
+            [build_cython=false],
+            [build_cython=true])
+if test "$build_cython" = "true"; then
+            AC_PROG_CYTHON([0.17.0])
+            if [test "x$CYTHON" != "xfalse"]; then
+              AM_PATH_PYTHON([3.7], [
+                CYTHON_PYTHON
+                AS_COMPILER_FLAG([-Wno-cast-function-type -Werror], [
+                  CYTHON_CFLAGS+=" -Wno-cast-function-type"
+                  AC_SUBST([CYTHON_CFLAGS])
+                ], [])
+              ])
+            else
+              AC_MSG_WARN([Use the "--without-cython" option to avoid this warning.])
+            fi
+else
+            CYTHON=false
+fi
+if [test "x$CYTHON" != "xfalse"]; then
+            PKG_PROG_PKG_CONFIG
+            AC_SUBST([CYTHON_PLIST_INCLUDE_DIR])
+            AC_MSG_RESULT([$CYTHON_PLIST_INCLUDE_DIR])
+            CYTHON_SUB=cython
+            cython_python_bindings=yes
+else
+            CYTHON_SUB=
+            cython_python_bindings=no
+fi
+AM_CONDITIONAL([HAVE_CYTHON],[test "x$CYTHON_SUB" = "xcython"])
+AC_SUBST([CYTHON_SUB])
+
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 AC_CONFIG_FILES([
@@ -187,6 +222,7 @@ src/Makefile
 src/libirecovery-1.0.pc
 include/Makefile
 tools/Makefile
+cython/Makefile
 udev/Makefile
 ])
 AC_OUTPUT
